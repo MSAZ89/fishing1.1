@@ -11,7 +11,7 @@ export const totalCoinsGained = writable<number>(0);
 export const bait = writable<number>(100);
 export const totalBaitAquired = writable<number>(100);
 export const isFishing = writable<boolean>(false);
-export const fishingLevel = writable<number>(50);
+export const fishingLevel = writable<number>(25);
 export const messages = writable<{ text: string; bold: boolean }[]>([]);
 export const totalFishCaught = writable<number>(0);
 

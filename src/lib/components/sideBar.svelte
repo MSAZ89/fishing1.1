@@ -102,6 +102,7 @@
 		<BasicButton text="Fishing Shop" onclick={openModal} />
 		<div>
 			<MessageLog />
+			<p>Fishing Level: {$fishingLevel}</p>
 		</div>
 	</div>
 	<div><SideBarBottom /></div>
