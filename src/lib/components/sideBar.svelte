@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import SideBarBottom from './SideBarBottom.svelte';
 	import {
 		addRandomFish,
 		sellAllFish,
@@ -11,7 +12,8 @@
 		isFishing,
 		fishingLevel,
 		addMessage,
-		totalWeight
+		totalWeight,
+		inventory
 	} from '$lib/fishStore';
 	import BasicButton from './BasicButton.svelte';
 	import MessageLog from './MessageLog.svelte';
@@ -27,24 +29,24 @@
 		if ($coins >= baitPrice) {
 			addBait(1);
 			removeCoins(baitPrice);
-			addMessage('Bought 1 bait');
+			addMessage('Bought 1 bait', true);
 		} else {
 			alert('Not enough coins');
 		}
 	}
 
 	function startFishing() {
-		addMessage('Started fishing', true);
+		addMessage('[Started fishing]', true);
 		isFishing.set(true);
 		attemptFishing();
 	}
 
 	function stopFishing() {
 		if ($isFishing) {
-			addMessage('Stopped fishing', true);
+			addMessage('[Stopped fishing]', true);
 		}
 		if ($isFishing && $bait <= 0) {
-			addMessage('Out of bait', true);
+			addMessage('Out of bait!', true);
 		}
 		isFishing.set(false);
 	}
@@ -63,7 +65,7 @@
 				clearInterval(interval);
 				stopFishing();
 			}
-		}, 1000);
+		}, 10);
 	}
 
 	function addFishAndRemoveBait() {
@@ -80,31 +82,36 @@
 		if (maxBait > 0) {
 			addBait(maxBait);
 			removeCoins(maxBait * baitPrice);
-			//appendText('Bought ' + maxBait + ' bait');
+			addMessage('Bought ' + maxBait + ' bait', true);
 		} else {
 			alert('Not enough coins');
 		}
 	}
 </script>
 
-<div class="my-2 flex gap-2">
-	<p class="scale-150">{$isFishing ? '🟢' : '🔴'}</p>
-	<p>Coins: {$coins.toFixed(2)}</p>
-	<p>Bait: {$bait}</p>
-</div>
+<div class="flex h-screen flex-col items-start justify-between">
+	<div class="w-full">
+		<div class="my-2 flex gap-2">
+			<p class="scale-150">{$isFishing ? '🟢' : '🔴'}</p>
+			<p>Coins: {$coins.toFixed(2)}</p>
+			<p>Bait: {$bait}</p>
+		</div>
 
-<BasicButton text="Start" onclick={() => startFishing()} />
-<BasicButton text="Stop" onclick={() => stopFishing()} />
-<BasicButton text="Fishing Shop" onclick={openModal} />
-<div>
-	<MessageLog />
+		<BasicButton text="Start" onclick={() => startFishing()} />
+		<BasicButton text="Stop" onclick={() => stopFishing()} />
+		<BasicButton text="Fishing Shop" onclick={openModal} />
+		<div>
+			<MessageLog />
+		</div>
+	</div>
+	<div><SideBarBottom /></div>
 </div>
 
 <dialog id="my_modal_2" class="modal">
 	<div class="modal-box">
 		<p class="pb-6">Coins: {$coins.toFixed(2)}</p>
 		{#if $totalWeight > 0}
-			<BasicButton text="Sell All" onclick={sellAllFish} />
+			<BasicButton text={'Sell All (' + $inventory.length + ' fish)'} onclick={sellAllFish} />
 		{/if}
 		<BasicButton text={'Bait x1 - $' + baitPrice} onclick={buyBait} />
 

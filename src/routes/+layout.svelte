@@ -4,9 +4,9 @@
 	let { children } = $props();
 </script>
 
-<div class="flex p-4">
-	<div class="w-2/3">{@render children()}</div>
-	<div class="w-1/3">
+<div class="flex min-h-screen">
+	<div class="w-3/4">{@render children()}</div>
+	<div class="w-1/4">
 		<SideBar />
 	</div>
 </div>

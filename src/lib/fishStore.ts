@@ -5,11 +5,15 @@ import { fishList } from '$lib/classes/fish';
 
 export const inventory = writable<Fish[]>([]);
 export const totalWeight = writable<number>(0);
+export const totalWeightGained = writable<number>(0);
 export const coins = writable<number>(0);
-export const bait = writable<number>(5);
+export const totalCoinsGained = writable<number>(0);
+export const bait = writable<number>(100);
+export const totalBaitAquired = writable<number>(100);
 export const isFishing = writable<boolean>(false);
 export const fishingLevel = writable<number>(50);
 export const messages = writable<{ text: string; bold: boolean }[]>([]);
+export const totalFishCaught = writable<number>(0);
 
 export function addMessage(text: string, bold = false) {
 	messages.update((msgs) => [{ text, bold }, ...msgs]);
@@ -21,6 +25,8 @@ export function addRandomFish() {
 		Math.random() * (randomFish.maxWeight - randomFish.minWeight) + randomFish.minWeight;
 	const fishWithRandomWeight = { ...randomFish, minWeight: randomWeight };
 	addMessage(`Caught a ${randomFish.name} (${randomWeight.toFixed(2)} lb)`, false);
+	totalFishCaught.update((count) => count + 1);
+	totalWeightGained.update((weight) => weight + randomWeight);
 	inventory.update((currentInventory) => {
 		totalWeight.update((weight) => weight + randomWeight);
 		return [...currentInventory, fishWithRandomWeight];
@@ -35,13 +41,17 @@ export function removeFish(index: number, onRemove?: (message: string) => void) 
 		const newInventory = [...currentInventory];
 		newInventory.splice(index, 1);
 		addCoins(1 * fishToRemove.minWeight);
-		addMessage(`Sold fish for ${(1 * fishToRemove.minWeight).toFixed(2)} coins`, true);
+		addMessage(
+			`Sold ${fishToRemove.name} for ${(1 * fishToRemove.minWeight).toFixed(2)} coins`,
+			true
+		);
 		return newInventory;
 	});
 }
 
 export function addCoins(amount: number) {
 	coins.update((currentCoins) => currentCoins + amount);
+	totalCoinsGained.update((totalCoins) => totalCoins + amount);
 }
 
 export function removeCoins(amount: number) {
@@ -50,6 +60,7 @@ export function removeCoins(amount: number) {
 
 export function addBait(amount: number) {
 	bait.update((currentBait) => currentBait + amount);
+	totalBaitAquired.update((totalBait) => totalBait + amount);
 }
 
 export function removeBait(amount: number) {

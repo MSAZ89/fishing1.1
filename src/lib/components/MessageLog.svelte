@@ -25,7 +25,11 @@
 	}
 </script>
 
-<div bind:this={messageContainer} id="messageLog" class="h-48 w-full overflow-y-auto border p-2">
+<div
+	bind:this={messageContainer}
+	id="messageLog"
+	class="h-[80vh] w-full overflow-y-auto border p-2"
+>
 	{#each [...$messages].reverse() as message}
 		<div>
 			<span class="text-xs text-gray-500">[{getFormattedTime()}] </span>
