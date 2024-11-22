@@ -1,4 +1,3 @@
-<!-- MessageLog.svelte -->
 <script lang="ts">
 	import { messages } from '$lib/fishStore';
 
