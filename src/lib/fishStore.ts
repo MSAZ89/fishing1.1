@@ -83,7 +83,7 @@ export function addRandomFish() {
 		Math.random() * (randomFish.maxWeight - randomFish.minWeight) + randomFish.minWeight;
 	const fishWithRandomWeight = { ...randomFish, minWeight: randomWeight };
 
-	addMessage(`Caught a ${randomFish.name} (${randomWeight.toFixed(2)} lb)`, false);
+	addMessage(`Caught a ${randomFish.name} (${randomWeight.toFixed(2)} lb)!`, true);
 	totalFishCaught.update((count) => count + 1);
 	totalWeightGained.update((weight) => weight + randomWeight);
 

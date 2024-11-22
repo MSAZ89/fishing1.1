@@ -19,6 +19,7 @@
 	import SideBarBottom from './SideBarBottom.svelte';
 
 	let baitPrice = 10;
+	let fishingInterval: ReturnType<typeof setInterval>;
 
 	function openModal() {
 		const modal = document.getElementById('my_modal_2');
@@ -56,40 +57,49 @@
 	}
 
 	function startFishing() {
-		addMessage('Started fishing', true);
+		addMessage('[Started fishing]', true);
 		isFishing.set(true);
 		attemptFishing();
 	}
 
 	function stopFishing() {
 		if ($isFishing) {
-			addMessage('Stopped fishing', true);
+			addMessage('[Stopped fishing]', true);
 		}
 		if ($isFishing && $bait <= 0) {
 			addMessage('Out of bait!', true);
 		}
 		isFishing.set(false);
+		clearInterval(fishingInterval);
 	}
 
 	function attemptFishing() {
-		const interval = setInterval(() => {
+		// Clear any existing interval to prevent multiple intervals running
+		clearInterval(fishingInterval);
+
+		fishingInterval = setInterval(() => {
 			if ($isFishing && $bait > 0) {
-				const successChance = Math.random() * 100;
-				if (successChance <= $fishingLevel) {
+				// Success chance scales with fishingLevel
+				// Example: Level 1 = 5%, Level 20 = 100%
+				const maxChance = 100;
+				const successChance = Math.min($fishingLevel * 5, maxChance);
+				const randomValue = Math.random() * 100;
+
+				if (randomValue <= successChance) {
 					addFishAndRemoveBait();
-					addMessage('Caught a fish!', true);
+					//addMessage('Caught a fish!', true);
 				} else {
-					addMessage('Failed to catch a fish.', false);
+					addMessage('Failed attempt.', false);
 				}
 			} else {
-				clearInterval(interval);
+				clearInterval(fishingInterval);
 				stopFishing();
 			}
-		}, 500);
+		}, 100); // Attempt every 2 seconds
 	}
 </script>
 
-<div class="flex h-screen flex-col items-start justify-between">
+<div class="flex h-screen flex-col justify-between">
 	<div class="w-full">
 		<div class="my-2 flex gap-2">
 			<p class="scale-150">{$isFishing ? '🟢' : '🔴'}</p>
@@ -102,18 +112,15 @@
 		<BasicButton text="Fishing Shop" onclick={openModal} />
 		<div>
 			<MessageLog />
-			<div class="mx-2 flex flex-col items-center justify-center">
-				<div class="my-2 h-4 w-full rounded bg-gray-300">
-					<div
-						class="h-4 rounded bg-blue-500"
-						style={`width: ${(parseInt($fishingXpProgress.split('/')[0]) / parseInt($fishingXpProgress.split('/')[1])) * 100}%`}
-					></div>
-				</div>
-				<p>Fishing Level: {$fishingLevel} ({$fishingXpProgress})</p>
-			</div>
 		</div>
 	</div>
-	<div><SideBarBottom /></div>
+	<div>
+		<p>
+			Fishing Level: {$fishingLevel} ({$fishingXpProgress})
+		</p>
+		<p class="mb-4">{$fishingLevel * 5}% Catch Chance</p>
+		<SideBarBottom />
+	</div>
 </div>
 
 <dialog id="my_modal_2" class="modal">
