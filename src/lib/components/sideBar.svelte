@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import SideBarBottom from './SideBarBottom.svelte';
 	import {
 		addRandomFish,
 		sellAllFish,
@@ -13,10 +11,12 @@
 		fishingLevel,
 		addMessage,
 		totalWeight,
-		inventory
+		inventory,
+		fishingXpProgress
 	} from '$lib/fishStore';
 	import BasicButton from './BasicButton.svelte';
 	import MessageLog from './MessageLog.svelte';
+	import SideBarBottom from './SideBarBottom.svelte';
 
 	let baitPrice = 10;
 
@@ -33,39 +33,6 @@
 		} else {
 			alert('Not enough coins');
 		}
-	}
-
-	function startFishing() {
-		addMessage('[Started fishing]', true);
-		isFishing.set(true);
-		attemptFishing();
-	}
-
-	function stopFishing() {
-		if ($isFishing) {
-			addMessage('[Stopped fishing]', true);
-		}
-		if ($isFishing && $bait <= 0) {
-			addMessage('Out of bait!', true);
-		}
-		isFishing.set(false);
-	}
-
-	function attemptFishing() {
-		const interval = setInterval(() => {
-			if ($isFishing && $bait > 0) {
-				const successChance = Math.random() * 100;
-				if (successChance <= $fishingLevel) {
-					addFishAndRemoveBait();
-					//addMessage('Caught a fish!');
-				} else {
-					addMessage('Failed to catch a fish.');
-				}
-			} else {
-				clearInterval(interval);
-				stopFishing();
-			}
-		}, 10);
 	}
 
 	function addFishAndRemoveBait() {
@@ -87,6 +54,39 @@
 			alert('Not enough coins');
 		}
 	}
+
+	function startFishing() {
+		addMessage('Started fishing', true);
+		isFishing.set(true);
+		attemptFishing();
+	}
+
+	function stopFishing() {
+		if ($isFishing) {
+			addMessage('Stopped fishing', true);
+		}
+		if ($isFishing && $bait <= 0) {
+			addMessage('Out of bait!', true);
+		}
+		isFishing.set(false);
+	}
+
+	function attemptFishing() {
+		const interval = setInterval(() => {
+			if ($isFishing && $bait > 0) {
+				const successChance = Math.random() * 100;
+				if (successChance <= $fishingLevel) {
+					addFishAndRemoveBait();
+					addMessage('Caught a fish!', true);
+				} else {
+					addMessage('Failed to catch a fish.', false);
+				}
+			} else {
+				clearInterval(interval);
+				stopFishing();
+			}
+		}, 500);
+	}
 </script>
 
 <div class="flex h-screen flex-col items-start justify-between">
@@ -102,7 +102,15 @@
 		<BasicButton text="Fishing Shop" onclick={openModal} />
 		<div>
 			<MessageLog />
-			<p>Fishing Level: {$fishingLevel}</p>
+			<div class="mx-2 flex flex-col items-center justify-center">
+				<div class="my-2 h-4 w-full rounded bg-gray-300">
+					<div
+						class="h-4 rounded bg-blue-500"
+						style={`width: ${(parseInt($fishingXpProgress.split('/')[0]) / parseInt($fishingXpProgress.split('/')[1])) * 100}%`}
+					></div>
+				</div>
+				<p>Fishing Level: {$fishingLevel} ({$fishingXpProgress})</p>
+			</div>
 		</div>
 	</div>
 	<div><SideBarBottom /></div>
@@ -115,10 +123,9 @@
 			<BasicButton text={'Sell All (' + $inventory.length + ' fish)'} onclick={sellAllFish} />
 		{/if}
 		<BasicButton text={'Bait x1 - $' + baitPrice} onclick={buyBait} />
-
 		<BasicButton text={'Buy All Bait ' + Math.floor($coins / baitPrice)} onclick={buyAllBait} />
 	</div>
 	<form method="dialog" class="modal-backdrop">
-		<button>close</button>
+		<button>Close</button>
 	</form>
 </dialog>

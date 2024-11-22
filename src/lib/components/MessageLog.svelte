@@ -28,7 +28,7 @@
 <div
 	bind:this={messageContainer}
 	id="messageLog"
-	class="h-[80vh] w-full overflow-y-auto border p-2"
+	class="h-[70vh] w-full overflow-y-auto border border-none p-2 outline-none"
 >
 	{#each [...$messages].reverse() as message}
 		<div>
